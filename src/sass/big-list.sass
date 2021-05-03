@@ -1,0 +1,155 @@
+$row-bg: rgba(0, 0, 0, 0)
+$row-alternate-bg: rgba(0, 0, 0, 0.1)
+$row-hover-color: rgba(0, 0, 0, 0.15)
+$row-selected-color: rgba(0, 0, 0, 0.2)
+
+$header-color: white
+$header-hover-color: #E1E8ED
+
+$header-z-index: 10
+
+div.big-list
+    flex: 1
+
+    display: flex
+    flex-direction: column
+
+    position: relative
+    overflow: auto
+
+    button.bl-button
+        background-color: inherit
+        border: none
+        border-radius: 0
+        cursor: pointer
+        justify-content: center
+        padding: 0 7px
+        text-align: left
+        vertical-align: middle
+
+    @mixin cell-text
+        flex: 1
+        display: flex
+        padding: 1px 5px
+
+        min-width: 0
+        min-height: 0
+
+        white-space: nowrap
+        overflow: hidden
+        text-overflow: ellipsis
+        // border: dashed 1px blue
+
+    @mixin header-text
+        @include cell-text
+        justify-content: flex-start
+        align-items: center
+        padding-top: 3px
+        padding-bottom: 3px
+
+    @mixin alternate
+        &:nth-child(odd)
+            background-color: $row-bg
+
+        &:nth-child(even)
+            background-color: $row-alternate-bg
+
+    .bl-cell
+        flex: 1
+        line-height: normal
+        display: flex
+        border-right: solid 1px lightgrey
+
+        &:last-child
+            border-right: none
+
+    .bl-header
+        display: flex
+        flex-direction: row
+        border-bottom: dashed 1px lightgrey
+        position: sticky
+        top: 0
+        left: 0
+        z-index: $header-z-index
+        font-size: 1.05em
+
+        & > .bl-cell
+            overflow: hidden
+
+            & > .bl-column
+                background-color: $header-color
+
+            & > button.bl-button.bl-column
+                min-height: 0
+                min-width: 0
+                display: flex
+                flex: 1
+                padding: 0
+                margin: 0
+                border-radius: 0
+                display: flex
+                transition: background-color 0.2s ease
+
+                &:hover
+                    background-color: $header-hover-color
+
+                & > .bl-button-content
+                    @include header-text
+                    font-weight: bold
+                    flex: 1
+
+                & > .bl-sort-icon
+                    display: none
+                    margin-left: 4px
+
+                    &:is(.bl-sorted > *)
+                        transform: translateY(1px)
+                        transition: transform 0.2s
+                        display: inline-block
+
+                        &:is(.bl-sorted-desc > *)
+                            transform: rotate(180deg)
+
+            & > .bl-column
+                @include header-text
+                font-weight: bold
+                user-select: none
+
+    .bl-list
+        flex: 1
+        display: block
+        position: relative
+        z-index: calc(#{$header-z-index} - 1)
+
+        button.bl-button.bl-row
+            @include alternate
+            width: 100%
+            padding: 0
+            margin: 0
+            min-width: 0
+            min-height: 0
+            border-radius: 0
+            transition: background-color 0.2s ease, box-shadow 0.2s ease
+
+            &.selected
+                background-color: rgba(0, 0, 0, 0.2)
+                box-shadow: inset 0 0 2px 1px $row-selected-color
+
+            &:hover
+                background-color: $row-hover-color
+
+            // .bp3-button-text
+            //     display: flex
+            //     flex: 1
+            //     margin: 0
+            //     padding: 0
+
+        .bl-row
+            @include alternate
+
+            flex: 1
+            display: flex
+            flex-direction: row
+
+            .bl-cell
+                @include cell-text

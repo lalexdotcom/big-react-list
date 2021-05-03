@@ -1,0 +1,49 @@
+{
+	"name": "big-react-list",
+	"version": "0.0.1-beta.0",
+	"description": "React scrollable, sortable, clickable list base on react-list",
+	"main": "./lib/BigList.js",
+	"types": "./lib/BigList.d.ts",
+	"repository": "https://github.com/lalexdotcom/big-list",
+	"author": "Alexandre LEGOUT <lalex@lalex.com>",
+	"license": "MIT",
+	"files": [
+		"lib/**/*",
+		"src/sass/**/*.sass"
+	],
+	"scripts": {
+		"build": "rm -rf lib && tsc --project . && sass --no-source-map ./src/sass:./lib/css",
+		"watch": "rm -rf lib && concurrently \"tsc --watch --project .\" \"sass --watch ./src/sass:./lib/css\"",
+		"format": "prettier --write src/**/*.ts",
+		"lint": "eslint",
+		"prepare": "npm run build",
+		"prepublishOnly": "npm run lint",
+		"preversion": "npm run lint",
+		"version": "npm run format && git add -A src",
+		"postversion": "git push && git push --tags",
+		"release": "np",
+		"release-beta": "np --tag beta"
+	},
+	"devDependencies": {
+		"@types/react": "^17.0.4",
+		"@types/react-list": "^0.8.5",
+		"@typescript-eslint/eslint-plugin": "^4.22.0",
+		"@typescript-eslint/parser": "^4.22.0",
+		"big-l": "^0.1.4",
+		"concurrently": "^6.0.2",
+		"eslint": "^7.25.0",
+		"eslint-config-prettier": "^8.3.0",
+		"np": "^7.5.0",
+		"prettier": "^2.2.1",
+		"react": "^17.0.2",
+		"sass": "^1.32.12",
+		"typescript": "^4.2.4"
+	},
+	"peerDependencies": {
+		"react": "^16"
+	},
+	"dependencies": {
+		"classnames": "^2.3.1",
+		"react-list": "^0.8.16"
+	}
+}
