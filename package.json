@@ -44,6 +44,7 @@
 	},
 	"dependencies": {
 		"classnames": "^2.3.1",
+		"fast-sort": "^3.0.2",
 		"react-list": "^0.8.16"
 	}
 }

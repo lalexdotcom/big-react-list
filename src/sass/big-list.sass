@@ -26,6 +26,7 @@ div.big-list
         padding: 0 7px
         text-align: left
         vertical-align: middle
+        font-size: inherit
 
     @mixin cell-text
         flex: 1
@@ -75,9 +76,11 @@ div.big-list
 
         & > .bl-cell
             overflow: hidden
+            align-self: stretch
+            background-color: $header-color
 
             & > .bl-column
-                background-color: $header-color
+                align-self: stretch
 
             & > button.bl-button.bl-column
                 min-height: 0
