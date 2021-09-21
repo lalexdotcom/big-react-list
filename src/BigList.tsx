@@ -2,26 +2,25 @@ import classnames from "classnames";
 import React from "react";
 import ReactList from "react-list";
 
-import { LG } from 'big-l';
-import { sort as fastSort } from 'fast-sort';
+import { LG } from "big-l";
+import { sort as fastSort } from "fast-sort";
 const LGR = LG.ns("BigList");
 
 LGR.time = true;
 
-export type ListColumn<T = any, O = any> = {
+export type ListColumn<T = any, O = any, D = any> = {
 	header?: React.ReactNode | ((options: O | null, handler: (type: string, payload?: any) => void) => React.ReactNode);
 	className?: string | ((o: T) => string);
 
-	value?: keyof T | ((o: T) => any);
+	value?: keyof T | ((o: T) => D);
 	content?: (
 		o: T,
-		value: any,
+		value: D,
 		options: O | null,
 		index: number,
 		handler: (type: string, data: T, payload?: any) => void
 	) => React.ReactNode;
 	sortable?: boolean;
-
 };
 
 export type ListSort<T> = { column: ListColumn<T>; desc?: boolean };
@@ -73,11 +72,11 @@ const memoized = new Map<Function, Map<any, any>>();
 function memo<T, R>(fct: (o: T) => R): (o: T) => R {
 	return (o: T) => {
 		let funcMemo = memoized.get(fct);
-		if (!funcMemo) memoized.set(fct, funcMemo = new Map([[o, fct(o)]]));
+		if (!funcMemo) memoized.set(fct, (funcMemo = new Map([[o, fct(o)]])));
 		let memoResult = funcMemo.get(o);
-		if (memoResult === undefined) funcMemo.set(o, memoResult = fct(o));
+		if (memoResult === undefined) funcMemo.set(o, (memoResult = fct(o)));
 		return memoResult;
-	}
+	};
 }
 
 function getColumnValue<T>(d: T, c: ListColumn<T>): any {
@@ -133,19 +132,11 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 							key={`column-${i}`}
 							className={classnames(
 								"bl-cell",
-								typeof c.className === "string"
-									? c.className
-									: c.className?.(data)
+								typeof c.className === "string" ? c.className : c.className?.(data)
 							)}
 						>
 							{c.content
-								? c.content(
-									data,
-									val,
-									options || null,
-									index,
-									this.cellHandler.bind(this)
-								)
+								? c.content(data, val, options || null, index, this.cellHandler.bind(this))
 								: `${val}`}
 						</div>
 					);
@@ -176,11 +167,17 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 		if (sort) {
 			if (fastSort) {
 				LGR.debug("Use fast-sort", fastSort);
-				sorted = sort.desc ? fastSort(source).desc(o => getColumnValue(o, sort.column)) : fastSort(source).asc(o => getColumnValue(o, sort.column))
+				sorted = sort.desc
+					? fastSort(source).desc(o => getColumnValue(o, sort.column))
+					: fastSort(source).asc(o => getColumnValue(o, sort.column));
 				LGR.debug("Sort done");
 			} else {
 				LGR.debug("Use array.sort");
-				sorted.sort((a, b) => (sort.desc ? -1 : 1) * (getColumnValue(a, sort.column) > getColumnValue(b, sort.column) ? 1 : -1))
+				sorted.sort(
+					(a, b) =>
+						(sort.desc ? -1 : 1) *
+						(getColumnValue(a, sort.column) > getColumnValue(b, sort.column) ? 1 : -1)
+				);
 				LGR.debug("Sort done");
 			}
 		}
@@ -245,10 +242,7 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 
 	componentDidUpdate(prevProps: BigListProps<T, O>, prevState: BigListState<T>) {
 		if (this.props.onChange && prevState.sorted !== this.state.sorted) {
-			this.props.onChange(
-				[...this.state.sorted],
-				this.state.sort
-			);
+			this.props.onChange([...this.state.sorted], this.state.sort);
 		}
 	}
 
@@ -313,14 +307,7 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 				<div className="bl-list">
 					<ReactList
 						itemRenderer={(index, key) =>
-							this.renderLine(
-								sorted[index],
-								columns,
-								index,
-								key,
-								sorted[index] === value,
-								clickable
-							)
+							this.renderLine(sorted[index], columns, index, key, sorted[index] === value, clickable)
 						}
 						length={sorted.length}
 						type="uniform"
