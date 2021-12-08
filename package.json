@@ -1,6 +1,6 @@
 {
 	"name": "big-react-list",
-	"version": "0.0.1-beta.0",
+	"version": "0.0.1-beta.1",
 	"description": "React scrollable, sortable, clickable list base on react-list",
 	"main": "./lib/BigList.js",
 	"types": "./lib/BigList.d.ts",
@@ -14,7 +14,7 @@
 	"scripts": {
 		"build": "rm -rf lib && tsc --project . && sass --no-source-map ./src/sass:./lib/css",
 		"watch": "rm -rf lib && concurrently \"tsc --watch --project .\" \"sass --watch ./src/sass:./lib/css\"",
-		"format": "prettier --write src/**/*.ts",
+		"format": "prettier --write src/**/*.ts src/**/*.tsx",
 		"lint": "eslint",
 		"prepare": "npm run build",
 		"prepublishOnly": "npm run lint",
