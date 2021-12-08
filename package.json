@@ -14,7 +14,7 @@
 	"scripts": {
 		"build": "rm -rf lib && tsc --project . && sass --no-source-map ./src/sass:./lib/css",
 		"watch": "rm -rf lib && concurrently \"tsc --watch --project .\" \"sass --watch ./src/sass:./lib/css\"",
-		"format": "prettier --write src/**/*",
+		"format": "prettier --write src/**/*.tsx",
 		"lint": "eslint",
 		"prepare": "npm run build",
 		"prepublishOnly": "npm run lint",
