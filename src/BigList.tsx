@@ -80,7 +80,7 @@ function memo<T, R>(fct: (o: T) => R): (o: T) => R {
 }
 
 function getColumnValue<T>(d: T, c: ListColumn<T>): any {
-	return typeof c.value === "function" ? c.value(d) : c.value ? d[c.value] : d;
+	return typeof c.value === "function" ? c.value(d) : c.value ? d?.[c.value] : d;
 }
 
 export class BigList<T = any, O extends object = {}> extends React.Component<BigListProps<T, O>, BigListState<T, O>> {
@@ -154,7 +154,7 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 	computeHeaders(columns: ListColumn[]) {
 		for (const col of columns) {
 			if (col.header) {
-				this.setState({ header: true });
+				this.setState({ header: true, sort: undefined });
 				return;
 			}
 		}
