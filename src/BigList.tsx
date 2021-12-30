@@ -20,10 +20,12 @@ export type ListColumn<T = any, O = any, D = any> = {
 		index: number,
 		handler: (type: string, data: T, payload?: any) => void
 	) => React.ReactNode;
-	sortable?: boolean;
+	sort?: boolean | ((a: D, b: D) => number);
 };
 
 export type ListSort<T> = { column: ListColumn<T>; desc?: boolean };
+
+type CollatorSensitivity = "base" | "accent" | "case" | "variant";
 
 type BigListProps<T, O> = {
 	title?: string;
@@ -34,6 +36,8 @@ type BigListProps<T, O> = {
 	columns: ListColumn<T, O>[];
 	source: T[];
 	options?: O;
+
+	collatorSensitivity?: CollatorSensitivity;
 
 	value?: T | null;
 
@@ -161,25 +165,26 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 		this.setState({ header: false });
 	}
 
-	computeData(source: T[], sort?: ListSort<T>) {
+	computeData(source: T[], sort?: ListSort<T>, sensitivity: CollatorSensitivity = "base") {
 		LGR.debug("Compute", source.length, "datas");
 		let sorted = [...source];
 		if (sort) {
-			if (fastSort) {
-				LGR.debug("Use fast-sort", fastSort);
-				sorted = sort.desc
-					? fastSort(source).desc(o => getColumnValue(o, sort.column))
-					: fastSort(source).asc(o => getColumnValue(o, sort.column));
-				LGR.debug("Sort done");
-			} else {
-				LGR.debug("Use array.sort");
-				sorted.sort(
-					(a, b) =>
-						(sort.desc ? -1 : 1) *
-						(getColumnValue(a, sort.column) > getColumnValue(b, sort.column) ? 1 : -1)
-				);
-				LGR.debug("Sort done");
-			}
+			const compare =
+				typeof sort.column.sort === "function"
+					? (c1: T, c2: T) =>
+							(sort.column.sort as Function)?.(
+								getColumnValue(c1, sort.column),
+								getColumnValue(c2, sort.column)
+							)
+					: (c1: T, c2: T) => {
+							let a = getColumnValue(c1, sort.column),
+								b = getColumnValue(c2, sort.column);
+							return a > b ? 1 : a < b ? -1 : 0;
+					  };
+			sorted = sort.desc
+				? fastSort(source).by({ comparer: compare, desc: true, inPlaceSorting: true })
+				: fastSort(source).by({ comparer: compare, asc: true, inPlaceSorting: true });
+			LGR.debug("Sort done");
 		}
 		this.setState({ sorted });
 	}
@@ -200,45 +205,6 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 
 		return shouldUpdate;
 	}
-
-	// private async computeColumns(columns: ListColumn<T>[]) {
-	// 	await new Promise(res => setInterval(res, 1));
-	// 	let header = false;
-	// 	const displayColumns = columns.map<ComputedColumn<T>>((col, i) => {
-	// 		if (!header && col.header) header = true;
-	// 		return { column: col, field: `col-${i}` };
-	// 	});
-	// 	this.setState({ columns: displayColumns, header, sort: undefined });
-	// 	return displayColumns;
-	// }
-
-	// private async computeSource(source: T[], columns: ComputedColumn<T>[]) {
-	// 	await new Promise(res => setInterval(res, 1));
-	// 	const computedSource: ComputedData<T>[] = [];
-	// 	source.forEach(src => {
-	// 		const computed: ComputedData<T>["computed"] = {};
-	// 		columns.forEach(col => {
-	// 			computed[col.field] = col.column.value ? col.column.value(src) : src;
-	// 		});
-	// 		computedSource.push({ computed, source: src });
-	// 	});
-	// 	this.setState({ source: computedSource });
-	// }
-
-	// private async displaySource(source: ComputedData<T>[], sort: ListSort<T> | undefined) {
-	// 	await new Promise(res => setInterval(res, 1));
-	// 	const displayed = [...source];
-
-	// 	if (sort) {
-	// 		const { column, desc } = sort;
-	// 		displayed.sort((data1, data2) => {
-	// 			const val1 = data1.computed[column.field],
-	// 				val2 = data2.computed[column.field];
-	// 			return (desc ? -1 : 1) * (val1 > val2 ? 1 : val1 < val2 ? -1 : 0);
-	// 		});
-	// 	}
-	// 	this.setState({ displayed });
-	// }
 
 	componentDidUpdate(prevProps: BigListProps<T, O>, prevState: BigListState<T>) {
 		if (this.props.onChange && prevState.sorted !== this.state.sorted) {
@@ -269,7 +235,7 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 					<div className="bl-header">
 						{columns.map((c, i) => (
 							<div key={`column-${i}`} className={`bl-cell ${c.className || ""}`}>
-								{c.sortable ? (
+								{c.sort ? (
 									<button
 										className={classnames("bl-column bl-button", {
 											"bl-sorted": sort?.column == c,
