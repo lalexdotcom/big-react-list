@@ -10,7 +10,7 @@ const LGR = LG.ns("BigList");
 
 export type ListColumn<T = any, O = any, D = any> = {
 	header?: React.ReactNode | ((options: O | null, handler: (type: string, payload?: any) => void) => React.ReactNode);
-	className?: string | ((o: T) => string);
+	className?: string | ((o?: T) => string);
 
 	value?: keyof T | ((o: T) => D);
 	content?: (
@@ -172,15 +172,15 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 			const compare =
 				typeof sort.column.sort === "function"
 					? (c1: T, c2: T) =>
-						(sort.column.sort as Function)?.(
-							getColumnValue(c1, sort.column),
-							getColumnValue(c2, sort.column)
-						)
+							(sort.column.sort as Function)?.(
+								getColumnValue(c1, sort.column),
+								getColumnValue(c2, sort.column)
+							)
 					: (c1: T, c2: T) => {
-						let a = getColumnValue(c1, sort.column),
-							b = getColumnValue(c2, sort.column);
-						return a > b ? 1 : a < b ? -1 : 0;
-					};
+							let a = getColumnValue(c1, sort.column),
+								b = getColumnValue(c2, sort.column);
+							return a > b ? 1 : a < b ? -1 : 0;
+					  };
 			sorted = sort.desc
 				? fastSort(source).by({ comparer: compare, desc: true, inPlaceSorting: true })
 				: fastSort(source).by({ comparer: compare, asc: true, inPlaceSorting: true });
@@ -234,7 +234,12 @@ export class BigList<T = any, O extends object = {}> extends React.Component<Big
 				{header ? (
 					<div className="bl-header">
 						{columns.map((c, i) => (
-							<div key={`column-${i}`} className={`bl-cell ${c.className || ""}`}>
+							<div
+								key={`column-${i}`}
+								className={`bl-cell ${
+									typeof c.className === "function" ? c.className() : c.className || ""
+								}`}
+							>
 								{c.sort ? (
 									<button
 										className={classnames("bl-column bl-button", {

@@ -49,10 +49,10 @@ div.big-list
         padding-bottom: 3px
 
     @mixin alternate
-        &:nth-child(odd)
+        &:nth-child(odd) .bl-cell
             background-color: $row-bg
 
-        &:nth-child(even)
+        &:nth-child(even) .bl-cell
             background-color: $row-alternate-bg
 
     .bl-cell
@@ -67,10 +67,8 @@ div.big-list
     .bl-header
         display: flex
         flex-direction: row
-        border-bottom: dashed 1px lightgrey
         position: sticky
         top: 0
-        left: 0
         z-index: $header-z-index
         font-size: 1.05em
 
@@ -78,6 +76,7 @@ div.big-list
             overflow: hidden
             align-self: stretch
             background-color: $header-color
+            border-bottom: dashed 1px lightgrey
 
             & > .bl-column
                 align-self: stretch
