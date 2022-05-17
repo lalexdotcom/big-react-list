@@ -1,6 +1,6 @@
 {
 	"name": "big-react-list",
-	"version": "0.0.1-beta.5",
+	"version": "0.0.1-beta.6",
 	"description": "React scrollable, sortable, clickable list base on react-list",
 	"main": "./lib/BigList.js",
 	"types": "./lib/BigList.d.ts",
